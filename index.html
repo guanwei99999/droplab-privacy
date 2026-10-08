@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Drop Lab 隐私政策</title>
+  <title>Drop Lab Privacy Policy</title>
   <style>
     :root {
       --bg: #0d0d0d;
@@ -32,98 +32,331 @@
     a { color: var(--accent); text-decoration: none; }
     a:hover { text-decoration: underline; }
     code { background: #1a1a1a; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+
+    /* Language selector */
+    .lang-selector {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 100;
+    }
+    .lang-selector select {
+      background: #1a1a1a;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      outline: none;
+    }
+    .lang-selector select:hover {
+      border-color: var(--accent);
+    }
   </style>
 </head>
 <body>
 
-<h1>Drop Lab 隐私政策</h1>
-<p class="last-updated">最后更新：2026 年 10 月 8 日</p>
+<!-- Language selector -->
+<div class="lang-selector">
+  <select id="langSelect" onchange="switchLang(this.value)">
+    <option value="en">English</option>
+    <option value="zh">中文</option>
+    <option value="ja">日本語</option>
+  </select>
+</div>
 
-<p>Drop Lab（以下简称"本应用"）重视用户隐私。本隐私政策说明我们如何收集、使用和保护您的个人信息。</p>
+<div id="content"></div>
 
-<h2>1. 我们收集的信息</h2>
+<script>
+const i18n = {
+  en: {
+    title: "Drop Lab Privacy Policy",
+    lastUpdated: "Last updated: October 8, 2026",
+    intro: "Drop Lab (hereinafter \"the App\") values your privacy. This privacy policy explains how we collect, use, and protect your personal information.",
+    section1: "1. Information We Collect",
+    sub1_1: "1.1 Locally Stored Data",
+    localData: "The following data is stored only on your device and is never uploaded to any server:",
+    listLocal: [
+      "Language preference: Your selected interface language (Chinese/English/Japanese)",
+      "Sound settings: Sound toggle state",
+      "Custom items: Names, tags, and descriptions of custom items you create",
+      "VIP status: Membership validity period and plan type (purchase credentials only, no payment info)",
+      "Collection progress: Discovered item-environment combinations",
+      "LLM reaction cache: AI-generated reaction results (stored locally only, not uploaded)"
+    ],
+    sub1_2: "1.2 Network Data Transmission",
+    networkData: "When you use the \"Custom Item\" feature, the following data is sent to our backend server for processing:",
+    listNetwork: [
+      "Item name (the text you enter)",
+      "Item tags (e.g., composite/flammable)",
+      "Target environment (Volcano/Dream/Flat 2D/Code World)",
+      "Medium and temperature parameters",
+      "Current language code"
+    ],
+    networkPurpose: "This data is used to call large language models to generate reaction descriptions, science explanations, and easter egg texts. The transmission uses HTTPS encryption.",
+    section2: "2. Purpose of Data Usage",
+    purposeList: [
+      "Core functionality: Generate interesting chemical reaction simulation results based on your drop selections",
+      "Experience optimization: Remember your preferences and provide personalized experience",
+      "VIP service: Verify VIP status and provide corresponding permissions",
+      "Game progress: Record collection progress"
+    ],
+    section3: "3. Data Storage and Protection",
+    storageList: [
+      "Local data is stored in device SharedPreferences, accessible only by this app",
+      "Network data transmission uses TLS 1.2+ encryption",
+      "Backend servers (Cloudflare Workers) do not log request content, used only for real-time processing",
+      "LLM cache is retained locally only and expires automatically after restart (max 240 entries)"
+    ],
+    section4: "4. Data Sharing and Disclosure",
+    sharingText: "We will NOT sell, rent, or share your personal information with third parties, including but not limited to:",
+    sharingList: [
+      "Advertisers or data analytics companies",
+      "Social media platforms",
+      "Other application developers"
+    ],
+    exception: "The only exception: If required by law or government enforcement, we may be compelled to disclose relevant information.",
+    section5: "5. Your Rights",
+    rightsList: [
+      "Right to access: You can view language, sound, and other preferences in app settings",
+      "Right to correction: You can modify custom items or switch languages at any time",
+      "Right to deletion: Uninstalling the app will clear all local data",
+      "Right to withdraw consent: Disabling network functionality will disable LLM generation (only affects custom items)"
+    ],
+    section6: "6. Third-Party Services",
+    thirdPartyIntro: "The App uses the following third-party services; their privacy policies apply independently:",
+    thirdPartyList: [
+      "Google AdMob: Advertising service (see Google Privacy Policy)",
+      "Google Play Billing: In-app purchase processing (see Google Privacy Policy)",
+      "Cloudflare Workers: Backend API proxy (see Cloudflare Privacy Policy)",
+      "Groq / Agnes AI: Large language model services (see respective privacy policies)"
+    ],
+    section7: "7. Children's Privacy",
+    childrenText: "The App is suitable for all ages. We do not actively collect personal information from children. If a parent discovers their child has provided personal information, please contact us to delete the relevant data.",
+    section8: "8. Policy Updates",
+    updatesText: "We may update this privacy policy from time to time. Updated policies will be published in-app and on this page. Major changes will be notified via in-app notifications.",
+    section9: "9. Contact Us",
+    contactIntro: "If you have any questions about this privacy policy, please contact us via:",
+    contactEmail: "Email: guanwei99999@gmail.com",
+    contactGithub: "GitHub: github.com/guanwei99999/dropLab",
+    footer: "Drop Lab &copy; 2026 guanwei. All rights reserved."
+  },
+  zh: {
+    title: "Drop Lab 隐私政策",
+    lastUpdated: "最后更新：2026 年 10 月 8 日",
+    intro: "Drop Lab（以下简称\"本应用\"）重视用户隐私。本隐私政策说明我们如何收集、使用和保护您的个人信息。",
+    section1: "1. 我们收集的信息",
+    sub1_1: "1.1 本地存储的数据",
+    localData: "以下数据仅存储在您的设备上，不会上传至任何服务器：",
+    listLocal: [
+      "语言偏好：您选择的界面语言（中文/英文/日文）",
+      "音效设置：音效开关状态",
+      "自定义物品：您创建的自定义物品名称、标签及描述",
+      "VIP 状态：会员有效期、套餐类型（仅存储购买凭证，不含支付信息）",
+      "图鉴进度：已发现的物品与环境组合",
+      "LLM 反应缓存：通过 AI 生成的反应结果（仅本地存储，不上传）"
+    ],
+    sub1_2: "1.2 网络传输的数据",
+    networkData: "当您使用\"自定义物品\"功能时，以下数据会发送至我们的后端服务器进行处理：",
+    listNetwork: [
+      "物品名称（您输入的文字）",
+      "物品标签（如 composite/flammable 等）",
+      "目标环境（火山/梦境/二维/代码世界）",
+      "介质与温度参数",
+      "当前语言代码"
+    ],
+    networkPurpose: "这些数据用于调用大语言模型生成反应描述、科普内容与彩蛋文本。传输过程使用 HTTPS 加密。",
+    section2: "2. 数据的使用目的",
+    purposeList: [
+      "核心功能：根据您的投放选择生成有趣的化学反应模拟结果",
+      "体验优化：记忆您的偏好设置，提供个性化体验",
+      "会员服务：验证 VIP 状态，提供相应权限",
+      "游戏进度：记录图鉴收集进度"
+    ],
+    section3: "3. 数据存储与保护",
+    storageList: [
+      "本地数据存储在设备 SharedPreferences 中，仅本应用可访问",
+      "网络数据传输使用 TLS 1.2+ 加密",
+      "后端服务器（Cloudflare Workers）不记录请求内容，仅用于实时处理",
+      "LLM 缓存仅在本地保留，重启后自动失效（最长 240 条）"
+    ],
+    section4: "4. 数据共享与披露",
+    sharingText: "我们不会将您的个人信息出售、出租或共享给第三方，包括但不限于：",
+    sharingList: [
+      "广告商或数据分析公司",
+      "社交媒体平台",
+      "其他应用程序开发商"
+    ],
+    exception: "唯一例外：如因法律要求或政府执法需要，我们可能被要求披露相关信息。",
+    section5: "5. 您的权利",
+    rightsList: [
+      "访问权：您可在应用设置中查看语言、音效等偏好",
+      "更正权：您可随时修改自定义物品或切换语言",
+      "删除权：卸载应用将清除所有本地数据",
+      "撤回同意：停用网络功能可禁用 LLM 生成（仅影响自定义物品）"
+    ],
+    section6: "6. 第三方服务",
+    thirdPartyIntro: "本应用使用以下第三方服务，其隐私政策独立适用：",
+    thirdPartyList: [
+      "Google AdMob：广告展示服务（见 Google 隐私政策）",
+      "Google Play Billing：应用内购买处理（见 Google 隐私政策）",
+      "Cloudflare Workers：后端 API 代理（见 Cloudflare 隐私政策）",
+      "Groq / Agnes AI：大语言模型服务（见各自隐私政策）"
+    ],
+    section7: "7. 儿童隐私",
+    childrenText: "本应用面向全年龄段用户。我们不主动向儿童收集个人信息。如家长发现子女提供了个人信息，请联系我们将删除相关数据。",
+    section8: "8. 政策更新",
+    updatesText: "我们可能会不时更新本隐私政策。更新后的政策将在应用内和 GitHub 页面发布，重大变更会通过应用内通知告知用户。",
+    section9: "9. 联系我们",
+    contactIntro: "如对隐私政策有任何疑问，请通过以下方式联系：",
+    contactEmail: "邮箱：guanwei99999@gmail.com",
+    contactGithub: "GitHub：github.com/guanwei99999/dropLab",
+    footer: "Drop Lab &copy; 2026 guanwei. All rights reserved."
+  },
+  ja: {
+    title: "Drop Lab プライバシーポリシー",
+    lastUpdated: "最終更新：2026年10月8日",
+    intro: "Drop Lab（以下「本アプリ」）はお客様のプライバシーを重視しています。このプライバシーポリシーでは、個人情報の収集・使用・保護方法について説明します。",
+    section1: "1. 収集する情報",
+    sub1_1: "1.1 ローカル保存データ",
+    localData: "以下のデータはデバイス上にのみ保存され、サーバーにアップロードされません：",
+    listLocal: [
+      "言語設定：選択したインターフェース言語（中国語/英語/日本語）",
+      "音響設定：サウンドのオン/オフ状態",
+      "カスタムアイテム：作成したカスタムアイテムの名前、タグ、説明",
+      "VIP状態：メンバーシップの有効期間とプランタイプ（購入証明文のみ、支払い情報は含まない）",
+      "コレクション進捗：発見されたアイテムと環境の組み合わせ",
+      "LLM反応キャッシュ：AIによって生成された反応結果（ローカルのみ保存、アップロードしない）"
+    ],
+    sub1_2: "1.2 ネットワークデータ送信",
+    networkData: "「カスタムアイテム」機能を使用する場合、以下のデータがバックエンドサーバーに送信されます：",
+    listNetwork: [
+      "アイテム名（入力したテキスト）",
+      "アイテムタグ（例：composite/flammable）",
+      "対象環境（火山/夢/二次元/コードワールド）",
+      "媒体と温度パラメータ",
+      "現在の言語コード"
+    ],
+    networkPurpose: "このデータは、大規模言語モデルを呼び出して、反応説明、科学解説、イースターエッグテキストを生成するために使用されます。送信はHTTPS暗号化を使用します。",
+    section2: "2. データの使用目的",
+    purposeList: [
+      "コア機能：ドロップ選択に基づいて面白い化学反応シミュレーション結果を生成",
+      "体験の最適化：設定を記憶し、パーソナライズされた体験を提供",
+      "VIPサービス：VIP状態を確認し、対応する権限を提供",
+      "ゲームの進捗：コレクション進捗を記録"
+    ],
+    section3: "3. データの保存と保護",
+    storageList: [
+      "ローカルデータはデバイス上のSharedPreferencesに保存され、本アプリのみアクセス可能",
+      "ネットワークデータの送信はTLS 1.2+暗号化を使用",
+      "バックエンドサーバー（Cloudflare Workers）はリクエスト内容をログに残さず、リアルタイム処理のみ使用",
+      "LLMキャッシュはローカルでのみ保持され、再起動後に自動的に期限切れ（最大240件）"
+    ],
+    section4: "4. データの共有と開示",
+    sharingText: "お客様の個人情報を第三者に販売、賃貸、または共有することはありません。包括但不限于：",
+    sharingList: [
+      "広告主やデータ分析会社",
+      "ソーシャルメディアプラットフォーム",
+      "他のアプリケーション開発者"
+    ],
+    exception: "唯一の例外：法律の要請や政府の執行が必要な場合、関連情報を開示せざるを得ないことがあります。",
+    section5: "5. お客様の権利",
+    rightsList: [
+      "アクセス権：アプリ設定で言語、サウンドなどの設定を表示できます",
+      "修正権：いつでもカスタムアイテムを修正したり、言語を切り替えたりできます",
+      "削除権：アプリをアンインストールするとすべてのローカルデータが消去されます",
+      "同意の撤回：ネットワーク機能を無効にするとLLM生成が無効になります（カスタムアイテムに影響）"
+    ],
+    section6: "6. サードパーティサービス",
+    thirdPartyIntro: "本アプリは以下のサードパーティサービスを使用しています；各サービスのプライバシーポリシーが独立して適用されます：",
+    thirdPartyList: [
+      "Google AdMob：広告表示サービス（Google Privacy Policyを参照）",
+      "Google Play Billing：アプリ内購入処理（Google Privacy Policyを参照）",
+      "Cloudflare Workers：バックエンドAPIプロキシ（Cloudflare Privacy Policyを参照）",
+      "Groq / Agnes AI：大規模言語モデルサービス（各プライバシーポリシーを参照）"
+    ],
+    section7: "7. 子供のプライバシー",
+    childrenText: "本アプリは全年齢対象です。お子様から個人情報を積極的に収集することはありません。親御さんがお子様による個人情報の提供を発見した場合は、関連データを削除するためにお問い合わせください。",
+    section8: "8. ポリシーの更新",
+    updatesText: "本プライバシーポリシーは随時更新されることがあります。更新されたポリシーはアプリ内とGitHubページで公開されます。重要な変更については、アプリ内通知でお知らせします。",
+    section9: "9. お問い合わせ",
+    contactIntro: "このプライバシーポリシーについてご質問がある場合は、以下の方法でご連絡ください：",
+    contactEmail: "メール：guanwei99999@gmail.com",
+    contactGithub: "GitHub：github.com/guanwei99999/dropLab",
+    footer: "Drop Lab &copy; 2026 guanwei. All rights reserved."
+  }
+};
 
-<h3>1.1 本地存储的数据</h3>
-<p>以下数据仅存储在您的设备上，不会上传至任何服务器：</p>
-<ul>
-  <li><strong>语言偏好</strong>：您选择的界面语言（中文/英文/日文）</li>
-  <li><strong>音效设置</strong>：音效开关状态</li>
-  <li><strong>自定义物品</strong>：您创建的自定义物品名称、标签及描述</li>
-  <li><strong>VIP 状态</strong>：会员有效期、套餐类型（仅存储购买凭证，不含支付信息）</li>
-  <li><strong>图鉴进度</strong>：已发现的物品与环境组合</li>
-  <li><strong>LLM 反应缓存</strong>：通过 AI 生成的反应结果（仅本地存储，不上传）</li>
-</ul>
+function switchLang(lang) {
+  const t = i18n[lang] || i18n['en'];
+  document.documentElement.lang = lang === 'zh' ? 'zh-CN' : lang === 'ja' ? 'ja' : 'en';
+  document.title = t.title;
 
-<h3>1.2 网络传输的数据</h3>
-<p>当您使用"自定义物品"功能时，以下数据会发送至我们的后端服务器进行处理：</p>
-<ul>
-  <li>物品名称（您输入的文字）</li>
-  <li>物品标签（如 composite/flammable 等）</li>
-  <li>目标环境（火山/梦境/二维/代码世界）</li>
-  <li>介质与温度参数</li>
-  <li>当前语言代码</li>
-</ul>
-<p>这些数据用于调用大语言模型生成反应描述、科普内容与彩蛋文本。传输过程使用 HTTPS 加密。</p>
+  let html = `
+    <h1>${t.title}</h1>
+    <p class="last-updated">${t.lastUpdated}</p>
+    <p>${t.intro}</p>
 
-<h2>2. 数据的使用目的</h2>
-<ul>
-  <li><strong>核心功能</strong>：根据您的投放选择生成有趣的化学反应模拟结果</li>
-  <li><strong>体验优化</strong>：记忆您的偏好设置，提供个性化体验</li>
-  <li><strong>会员服务</strong>：验证 VIP 状态，提供相应权限</li>
-  <li><strong>游戏进度</strong>：记录图鉴收集进度</li>
-</ul>
+    <h2>${t.section1}</h2>
+    <h3>${t.sub1_1}</h3>
+    <p>${t.localData}</p>
+    <ul>${t.listLocal.map(i => `<li>${i}</li>`).join('')}</ul>
 
-<h2>3. 数据存储与保护</h2>
-<ul>
-  <li>本地数据存储在设备 SharedPreferences 中，仅本应用可访问</li>
-  <li>网络数据传输使用 TLS 1.2+ 加密</li>
-  <li>后端服务器（Cloudflare Workers）不记录请求内容，仅用于实时处理</li>
-  <li>LLM 缓存仅在本地保留，重启后自动失效（最长 240 条）</li>
-</ul>
+    <h3>${t.sub1_2}</h3>
+    <p>${t.networkData}</p>
+    <ul>${t.listNetwork.map(i => `<li>${i}</li>`).join('')}</ul>
+    <p>${t.networkPurpose}</p>
 
-<h2>4. 数据共享与披露</h2>
-<p>我们<b>不会</b>将您的个人信息出售、出租或共享给第三方，包括但不限于：</p>
-<ul>
-  <li>广告商或数据分析公司</li>
-  <li>社交媒体平台</li>
-  <li>其他应用程序开发商</li>
-</ul>
-<p>唯一例外：如因法律要求或政府执法需要，我们可能被要求披露相关信息。</p>
+    <h2>${t.section2}</h2>
+    <ul>${t.purposeList.map(i => `<li>${i}</li>`).join('')}</ul>
 
-<h2>5. 您的权利</h2>
-<ul>
-  <li><strong>访问权</strong>：您可在应用设置中查看语言、音效等偏好</li>
-  <li><strong>更正权</strong>：您可随时修改自定义物品或切换语言</li>
-  <li><strong>删除权</strong>：卸载应用将清除所有本地数据</li>
-  <li><strong>撤回同意</strong>：停用网络功能可禁用 LLM 生成（仅影响自定义物品）</li>
-</ul>
+    <h2>${t.section3}</h2>
+    <ul>${t.storageList.map(i => `<li>${i}</li>`).join('')}</ul>
 
-<h2>6. 第三方服务</h2>
-<p>本应用使用以下第三方服务，其隐私政策独立适用：</p>
-<ul>
-  <li><strong>Google AdMob</strong>：广告展示服务（见 Google 隐私政策）</li>
-  <li><strong>Google Play Billing</strong>：应用内购买处理（见 Google 隐私政策）</li>
-  <li><strong>Cloudflare Workers</strong>：后端 API 代理（见 Cloudflare 隐私政策）</li>
-  <li><strong>Groq / Agnes AI</strong>：大语言模型服务（见各自隐私政策）</li>
-</ul>
+    <h2>${t.section4}</h2>
+    <p>${t.sharingText}</p>
+    <ul>${t.sharingList.map(i => `<li>${i}</li>`).join('')}</ul>
+    <p>${t.exception}</p>
 
-<h2>7. 儿童隐私</h2>
-<p>本应用面向全年龄段用户。我们不主动向儿童收集个人信息。如家长发现子女提供了个人信息，请联系我们将删除相关数据。</p>
+    <h2>${t.section5}</h2>
+    <ul>${t.rightsList.map(i => `<li>${i}</li>`).join('')}</ul>
 
-<h2>8. 政策更新</h2>
-<p>我们可能会不时更新本隐私政策。更新后的政策将在本页面发布，重大变更会通过应用内通知告知用户。</p>
+    <h2>${t.section6}</h2>
+    <p>${t.thirdPartyIntro}</p>
+    <ul>${t.thirdPartyList.map(i => `<li>${i}</li>`).join('')}</ul>
 
-<h2>9. 联系我们</h2>
-<p>如对隐私政策有任何疑问，请通过以下方式联系：</p>
-<ul>
-  <li>邮箱：<a href="mailto:guanwei99999@gmail.com">guanwei99999@gmail.com</a></li>
-  <li>GitHub：<a href="https://github.com/guanwei99999/dropLab" target="_blank">github.com/guanwei99999/dropLab</a></li>
-</ul>
+    <h2>${t.section7}</h2>
+    <p>${t.childrenText}</p>
 
-<hr style="border-color: var(--border); margin: 32px 0;">
-<p style="text-align: center; color: var(--muted); font-size: 12px;">
-  Drop Lab &copy; 2026 guanwei. All rights reserved.
-</p>
+    <h2>${t.section8}</h2>
+    <p>${t.updatesText}</p>
+
+    <h2>${t.section9}</h2>
+    <p>${t.contactIntro}</p>
+    <ul>
+      <li>${t.contactEmail}</li>
+      <li><a href="https://github.com/guanwei99999/dropLab" target="_blank">github.com/guanwei99999/dropLab</a></li>
+    </ul>
+
+    <hr style="border-color: var(--border); margin: 32px 0;">
+    <p style="text-align: center; color: var(--muted); font-size: 12px;">${t.footer}</p>
+  `;
+
+  document.getElementById('content').innerHTML = html;
+  localStorage.setItem('privacy_lang', lang);
+}
+
+// Initialize: detect saved preference or browser language
+(function init() {
+  const saved = localStorage.getItem('privacy_lang');
+  const browser = navigator.language.slice(0, 2);
+  const defaultLang = (saved && i18n[saved]) ? saved : (i18n[browser] ? browser : 'en');
+
+  document.getElementById('langSelect').value = defaultLang;
+  switchLang(defaultLang);
+})();
+</script>
 
 </body>
 </html>
